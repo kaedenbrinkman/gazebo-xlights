@@ -60,7 +60,7 @@ Full diagram: [`docs/wiring_diagram.png`](docs/wiring_diagram.png), notes in [`d
 
 - Totals: 1,525 pixels, 48 strings (24 post/rafter + 11 + 12 + 1), 4,575 channels. Over E1.31 that is 9 universes at 170 pixels (8 full + 165 px).
 - The K16A-B has 16 ports (check the spec sheet); only 5 are used. Port 4 carries 325 px; if you prefer all ports at 300 or less, put the ring on its own port 6.
-- Power: pixel voltage assumed 5 V (check yours). Inject at the start of every port and at the 50 -> 25 string joint of each post/rafter unit; 12 V pixels need much less.
+- Power: **12 V pixels**. Estimated ~0.04 A per pixel at full white (pending the datasheet): ~12 A per 300-px port, ~13 A on port 4, **~61 A total**. Suggested: one 12 V supply per port (15 A for ports 1, 2, 3, 5; 20 A for port 4), each with a fuse, or two or three 12 V 30 A supplies with a fused distribution block. Inject 12 V at the start of every port, and mid-chain on ports 1-3 between units 2 and 3. Ports 4 and 5 are 12-13 A from a single start injection, so use heavy wire (e.g. 14 AWG) or add a mid-chain injection there.
 - Pixels plug into 2"-pitch mounting strips on the inward side of the posts, rails and rafters (see the diagram, panel 3).
 - In FPP, set the pixel outputs (Channel Outputs) per port above, start channel 1, same order. The `.fseq` files assume channel 1 = pixel 1 red.
 
