@@ -29,7 +29,9 @@ All derived from your measurements and photo; anything marked *assumed* was my c
 - **Roof (open framing, no solid roof):** center ring is a 12-gon with base at **89"**, 3.5" tall (*assumed*), inside **22.5"** and outside **29.5"** flat-to-flat (*assumed* flat-to-flat). 12 rafters (2x4), one over each post, from wall top (72.5") to the ring's outer corner at 89". Rafter length computes to **84.1"**, matching the measured 84".
 
 ## Pixel layout
-**1,525 pixels (RGB, 4,575 channels), 48 strings.** No pixels on braces or top joists. Pixels face inward (toward the center), on the inner side of each member's centerline. Posts and rails are at 2" spacing; the ring has 50 pixels at about 1.7".
+**1,525 pixels (RGB, 4,575 channels), 48 strings.** No pixels on braces or top joists. Pixels face inward (toward the center), on the inner side of each member's centerline. 72" rail pixels sit on the inner face of the top joist/rail stack (2.05" inside the post line, clear of the 3.5"-wide joist); ring pixels are on the ring's underside (z = 88.7"), facing down. Posts and rails are at 2" spacing; the ring has 50 pixels at about 1.7".
+
+> **Fix (pixel positions and fire):** earlier versions placed all 300 72" rail pixels inside the top-joist wood and the 50 ring pixels inside the ring, so they were hidden in 3D views (the web preview's "second level" was dark), and the fire effect ran upside down on the 8 "dn" units because it used node order instead of height. Positions, model, CSV, sequences, previews and renders were regenerated; `scripts/build_web_assets.py` now fails if any pixel is inside the wood.
 
 > **Update (model regenerated):** an earlier version of this package had 1,800 pixels including 288 top-joist pixels and different string lengths. Those files were replaced: the model, pixel table, sequences, previews and renders in this repo all use the 1,525-pixel layout below. If you have older copies, discard them.
 

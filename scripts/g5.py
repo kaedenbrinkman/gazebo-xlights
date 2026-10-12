@@ -109,14 +109,17 @@ for i in range(N):
     off=nin*(0.75/2+0.3)
     if i!=0:
         pts=[z3(a+t*u+off,36) for u in ss]; add_member('rails36',pts,[colorsys.hsv_to_rgb(0.55,0.8,1)]*len(pts))
-    pts=[z3(a+t*u+off,72) for u in ss]; add_member('rails72',pts,[colorsys.hsv_to_rgb(0.85,0.8,1)]*len(pts))
+    # 72" rail pixels sit on the inner face of the top-joist/rail stack: the 2x4 joist (71-72.5", 3.5" wide, centred on
+    # the post line) encloses z=72 out to 1.75" inward, so a pixel at the rail's own face (0.675") would be buried in it.
+    off72=nin*(3.5/2+0.3)
+    pts=[z3(a+t*u+off72,72) for u in ss]; add_member('rails72',pts,[colorsys.hsv_to_rgb(0.85,0.8,1)]*len(pts))
     # (top joists carry NO pixels: they duplicate the 72" rails)
     top=z3(a,WT-0.8);pk=z3(rout*np.array([np.cos(ang[i]),np.sin(ang[i])]),RING_Z-0.8)
     Lr=np.linalg.norm(pk-top);d=(pk-top)/Lr;us=2.0+2.0*np.arange(40)   # 40 rafter px (35 post + 40 rafter = 75 per unit)
     pts=[top+d*u for u in us]; add_member('rafters',pts,[colorsys.hsv_to_rgb(0.3+0.02*k,0.8,1) for k in range(len(pts))])
 # ring: centreline at mid apothem, perimeter every 2"
 rm=(apo_in+apo_out)/2/np.cos(np.pi/N)
-rc=rp(rm,RING_Z+RING_T/2)
+rc=rp(rm,RING_Z-0.3)   # on the ring's underside, facing down (the old centre line at RING_Z+RING_T/2 was inside the wood)
 # 50 pixels equally spaced along the ring perimeter (pitch ~1.7")
 _L=[np.linalg.norm(rc[(i+1)%N]-rc[i]) for i in range(N)];_cum=np.r_[0,np.cumsum(_L)];pts=[]
 for _k in range(50):

@@ -20,7 +20,7 @@
    "loops": "yes (hue cycle)",
    "description": "Rainbow colors rotating around the gazebo by angle, with a slight height shift",
    "mood": "Bright, party, general use",
-   "sha1": "28c96c4cd2db"
+   "sha1": "139cad002f9a"
   },
   {
    "id": "rafter_spiral",
@@ -48,7 +48,7 @@
    "loops": "cycles",
    "description": "A color wipes up the whole structure by height, then the next color",
    "mood": "Welcome, transitions",
-   "sha1": "038ca9ce36f7"
+   "sha1": "3431bb310650"
   },
   {
    "id": "twinkle",
@@ -90,7 +90,7 @@
    "loops": "no",
    "description": "Fire effect rising up each post, glowing embers on the rest, warm ring",
    "mood": "Cozy, Halloween-ish",
-   "sha1": "3a4fa14e5a22"
+   "sha1": "5bd4dbdd885a"
   },
   {
    "id": "christmas",
@@ -146,7 +146,7 @@
    "loops": "yes",
    "description": "Warm-white breathing wave (10 s) rising from posts to ring",
    "mood": "Very calm, ambient",
-   "sha1": "9fc9d95f95c4"
+   "sha1": "d8025df755aa"
   },
   {
    "id": "aurora",
@@ -160,7 +160,7 @@
    "loops": "yes",
    "description": "Drifting green / teal / purple waves around by angle and height",
    "mood": "Calm, magical",
-   "sha1": "24181039fc1a"
+   "sha1": "80ddec51ecda"
   },
   {
    "id": "golden_hour",
@@ -174,7 +174,7 @@
    "loops": "yes",
    "description": "Slow gradient shift amber to rose to soft violet and back, with a small height offset",
    "mood": "Sunset, relaxed",
-   "sha1": "db1c3a85a8b0"
+   "sha1": "5f870cf3f694"
   },
   {
    "id": "eye_of_sauron",
@@ -188,7 +188,7 @@
    "loops": "yes",
    "description": "Ring is a yellow-white slit pupil with orange-red glow; rafters are red-orange flames fading outward; walls are dim pulsing red embers; a bright beam sweeps around the rafters at 2 s and 12 s",
    "mood": "Themed, Halloween, party trick",
-   "sha1": "c51283b52cb1"
+   "sha1": "3d58a842b3c7"
   },
   {
    "id": "lantern_fireflies",
@@ -202,7 +202,7 @@
    "loops": "yes",
    "description": "16 warm-yellow fireflies drift around the structure and blink slowly",
    "mood": "Summer evening, calm",
-   "sha1": "14e2c4519a17"
+   "sha1": "d81425ff4002"
   }
  ]
 }

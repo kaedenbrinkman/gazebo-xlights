@@ -4,7 +4,7 @@
 **1525 pixels, 1 pixel = 3 channels (RGB), 4575 channels total.** No pixels on braces or on the top joists (they duplicate the 72" rails). Pixels face inward.
 
 ## Files
-- `gazebo.xmodel` - xLights custom model (3D: width 189, height 92, depth 189; 1 grid cell = 1 inch). Node n = pixel n in the CSV.
+- `gazebo.xmodel` - xLights custom model (3D: width 189, height 90, depth 188; 1 grid cell = 1 inch). Node n = pixel n in the CSV.
 - `gazebo_pixels.csv` - index, start channel, port, member, member number, position in member (geometric), x/y/z in inches.
 - `*.fseq` - 20 fps, 50 ms/step, v2 uncompressed, 4575 channels/step, channel 1 = pixel 1 red.
 

@@ -33,7 +33,9 @@ def anim_breath(t):
 # fire (Fire2012 per post column; other members as embers)
 def make_fire():
     fr=np.zeros((NF,N,3));heat=np.zeros((12,35));r=np.random.default_rng(3)
-    posts=[np.where((MEMARR=='posts')&(MIDX==k))[0] for k in range(12)]
+    # heat[k][0] is the BASE of post k: order each post's nodes by physical height, not node order
+    # ("dn" units are wired top->base, so node order is upside down on every other unit)
+    posts=[by_height(np.where((MEMARR=='posts')&(MIDX==k))[0]) for k in range(12)]
     for f in range(NF):
         heat=np.clip(heat-r.uniform(0,0.12,heat.shape)*1.0,0,1)   # cooling
         new=heat.copy()

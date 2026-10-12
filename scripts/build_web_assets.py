@@ -65,6 +65,19 @@ def main():
         import xl_common
         if regen: import xl_anim, xl_anim2
     os.chdir(ROOT); shutil.rmtree(tmp, ignore_errors=True)
+    # every pixel must sit outside the wood, or it is hidden in the 3D preview (and would be in xLights 3D too)
+    try:
+        from scipy.spatial import Delaunay
+        g5 = xl_common.g5; buried = {}
+        for kind, polys in g5.G.items():
+            k = 4 if kind == 'ring' else 6          # polys per solid (ring segments have no end caps)
+            for i in range(0, len(polys), k):
+                hull = Delaunay(np.array([p for q in polys[i:i + k] for p in q]))
+                hit = np.where(hull.find_simplex(xl_common.XYZ) >= 0)[0]
+                for h in hit: buried.setdefault(f'{xl_common.MEM[h]} in {kind}', 0); buried[f'{xl_common.MEM[h]} in {kind}'] += 1
+        print('pixels inside wood:', buried or 'none'); ok &= not buried
+    except ImportError:
+        print('(scipy not installed: skipped the pixels-inside-wood check)')
     dxyz = np.abs(xyz - xl_common.XYZ).max()
     print(f'pixels: {npx} rows, {3*npx} channels; CSV vs xl_common.XYZ max |diff| = {dxyz:.4f} in')
     ok &= dxyz < 0.006

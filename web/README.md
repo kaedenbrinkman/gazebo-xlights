@@ -88,8 +88,8 @@ Assumptions and caveats:
 - Pavers: 16" x 16" x 2" concrete slabs under each post, aligned radially, set 1" proud of the grass (assumed).
 - Pixels face inward: each sprite is dimmed (down to 14%) when you see it from behind. Posts and rails face the centre axis; rafter
   pixels face down and in; ring pixels face down.
-- The CSV puts the 50 ring pixels on the ring's centre line, inside the wood. The preview draws them 0.3" below the ring's underside
-  so they are visible. Everything else uses the CSV positions as-is.
+- All pixel positions come straight from the CSV. `scripts/build_web_assets.py` checks that no pixel is inside the wood
+  (an earlier model had the 72" rail pixels inside the top joists and the ring pixels inside the ring, so they were hidden).
 - Wood and grass are lit by 13 coloured point lights that follow the average colour of nearby pixels (12 wall sectors + the roof),
   an approximation of real spill light.
 - "Wood lit" adds warm floodlights so you can see the framing. "Night" is moonlight only.

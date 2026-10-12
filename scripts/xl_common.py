@@ -36,11 +36,26 @@ MEMARR=np.array(MEM)
 N=len(XYZ)
 # LOC/U = geometric position within each member (posts bottom->top, rafters wall->ring, rails post i->i+1, ring CCW
 # from post 1), independent of wiring direction, so animations look the same whichever way a unit is wired.
-_geo={}
-for _l in _idx.values():
-    for j,k in enumerate(_l): _geo[k]=(j,j/max(len(_l)-1,1))
-LOC=np.array([_geo[k][0] for k in order]);U=np.array([_geo[k][1] for k in order])
+# Computed from the physical x/y/z (the same values written to model/gazebo_pixels.csv), never from node order:
+#   posts, rafters: by height z; rails: by distance along the face from post f toward post f+1; ring: by angle CCW from post 1.
 ANG=np.arctan2(XYZ[:,1],XYZ[:,0]);RAD=np.hypot(XYZ[:,0],XYZ[:,1]);Z=XYZ[:,2]
+LOC=np.zeros(N,int);U=np.zeros(N)
+for _m in set(MEM):
+    for _i in set(MIDX[MEMARR==_m]):
+        _sel=np.where((MEMARR==_m)&(MIDX==_i))[0]
+        if _m in('posts','rafters'): _key=Z[_sel]
+        elif _m in('rails36','rails72'):
+            _a,_b=g5.P[_i],g5.P[(_i+1)%12]; _key=(XYZ[_sel,:2]-_a)@((_b-_a)/np.linalg.norm(_b-_a))
+        else: _key=(ANG[_sel]-g5.ang[0])%(2*np.pi)
+        _r=np.argsort(np.argsort(_key,kind='stable'),kind='stable')
+        LOC[_sel]=_r;U[_sel]=_r/max(len(_sel)-1,1)
+# sanity: the geometric order g5 generated each member in must agree with the physical ranking
+for _l in _idx.values():
+    _pos=[int(np.where(order==k)[0][0]) for k in _l]
+    assert list(LOC[_pos])==list(range(len(_l))),'LOC must follow physical position'
+def by_height(sel):
+    """Node indices of a selection sorted bottom-to-top by physical z (wiring-direction independent)."""
+    sel=np.asarray(sel);return sel[np.argsort(Z[sel],kind='stable')]
 def hsv(h,s,v):
     sh=np.broadcast(np.asarray(h),np.asarray(s),np.asarray(v)).shape
     h=np.broadcast_to(np.asarray(h,float)%1.0,sh);s=np.broadcast_to(s,sh);v=np.broadcast_to(v,sh)

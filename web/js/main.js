@@ -239,9 +239,7 @@ let PIX = null;          // { points, colors(Uint8), csv, starts, lights }
 function buildPixels(csv) {
   const n = csv.length, pos = new Float32Array(n * 3), dir = new Float32Array(n * 3), col = new Uint8Array(n * 3);
   csv.forEach((p, i) => {
-    // the CSV puts ring pixels on the ring's centre line (inside the wood); draw them on its underside, facing down
-    const z = /Ring/i.test(p.member) ? 89.0 - 0.3 : p.z;
-    const v = toScene(p.x, p.y, z); pos.set([v.x, v.y, v.z], i * 3);
+    const v = toScene(p.x, p.y, p.z); pos.set([v.x, v.y, v.z], i * 3);
     const d = pixelNormal(p.member, p.x, p.y); dir.set([d.x, d.y, d.z], i * 3);
   });
   const g = new THREE.BufferGeometry();
