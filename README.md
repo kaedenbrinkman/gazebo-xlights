@@ -17,6 +17,7 @@ A 12-sided garden gazebo modeled in 3D and turned into a **1,525-pixel (2" spaci
 | `animations/README.md` | Animation catalog + ideas backlog |
 | `docs/hue-integration.md` | Untested plan for Hue / Home Assistant control |
 | `scripts/` | Python that generates everything (run from repo root) |
+| `web/` | Static Three.js 3D preview that plays the `.fseq` shows in the browser, plus a **Load .fseq** button for your own xLights exports. Deployed to GitHub Pages by `.github/workflows/pages.yml`. See [`web/README.md`](web/README.md) |
 
 ## Dimensions and assumptions (inches)
 All derived from your measurements and photo; anything marked *assumed* was my choice.
@@ -32,42 +33,59 @@ All derived from your measurements and photo; anything marked *assumed* was my c
 
 > **Update (model regenerated):** an earlier version of this package had 1,800 pixels including 288 top-joist pixels and different string lengths. Those files were replaced: the model, pixel table, sequences, previews and renders in this repo all use the 1,525-pixel layout below. If you have older copies, discard them.
 
-Node order **= wiring order**: posts and rafters are interleaved per "unit" so every port is one contiguous run.
+Node order **= wiring order** for the Kulp K4-PB plan in [`docs/physical_layout_v3.md`](docs/physical_layout_v3.md): each of the 4 ports is one contiguous node range. Unit k = rafter k + post k (75 px: post 35 px, rafter 40 px; string A 50 px = 35 post + 15 rafter, string B 25 px = rest of the rafter). "dn" units run data ring > rafter > post base, "up" units run base > ring. Rail face f runs post f to f+1 ("f1-f3"), or backwards ("f3-f2").
 
-| Nodes | Member | Count | Notes |
+| Nodes | Port | Data order | Count |
 |---|---|---|---|
-| 1-900 | 12 units: post k, then rafter k | 12 x 75 | post = 35 px bottom (1") to top (69"); rafter = 40 px wall to ring (~84"). String A (50 px) = 35 post + 15 rafter; string B (25 px) = remaining 25 rafter px |
-| 901-1175 | 36" rails | 11 x 25 | faces 2-12 (none on the entrance face), 25 px = 48" span |
-| 1176-1225 | Center ring | 50 | around the ring CCW |
-| 1226-1525 | 72" rails | 12 x 25 | faces 1-12 |
+| 1-400 | P1 | ring (50) > U11 dn > U12 up > U1 dn > 72" f1-f3 > 36" f3-f2 | 400 |
+| 401-775 | P2 | U2 dn > U3 up > U4 dn > 36" f4-f6 > 72" f6-f4 | 375 |
+| 776-1150 | P3 | U5 dn > U6 up > U7 dn > 36" f7-f9 > 72" f9-f7 | 375 |
+| 1151-1525 | P4 | U8 dn > U9 up > U10 dn > 36" f10-f12 > 72" f12-f10 | 375 |
+
+The CSV has a `port` column, and `pos_in_member` is geometric (posts bottom to top, rafters wall to ring, rails post f to f+1, ring CCW from post 1), so you can see which units are wired in reverse.
 
 Member totals: posts 420, rafters 480, 36" rails 275, 72" rails 300, ring 50 = 1,525. (An earlier 3D model had 76 px per post/rafter unit, 35 + 41. The hardware plan is 75, so the model now uses 40 rafter px.)
 
 Node n in `gazebo.xmodel` is row n of `model/gazebo_pixels.csv` (start channel and real x/y/z; origin at the center on the ground, +z up).
 
-## Wiring plan (Kulp K16A-B controller running FPP)
-Full diagram: [`docs/wiring_diagram.png`](docs/wiring_diagram.png), notes in [`docs/wiring.md`](docs/wiring.md).
+## Wiring plan (Kulp K4-PB controller running FPP)
+The current plan is [`docs/physical_layout_v3.md`](docs/physical_layout_v3.md) (Layout F v3).
 
-![wiring](docs/wiring_diagram.png)
+![physical layout v3](docs/physical_layout_v3.png)
 
-| Port | Content | Pixels | Nodes |
+**Controller and supplies**
+- **Controller:** a Kulp **K4-PB** (PocketBeagle cape, 4 eFused ports) in a small sealed box on the center ring, networked by USB Wi-Fi.
+- **Supplies:** 4 x 12 V LRS-350-12 supplies and all AC live in a ventilated box on the ground at post 1. A 4 x 6 AWG-pair 12 V trunk runs up post 1 and along rafter 1 to fuse blocks in the ring box.
+
+**Ports**
+
+| Port | Pixels | Start channel | Universes (170 px) |
 |---|---|---|---|
-| 1 | Units 1-4 (posts 1-4 + rafters): 4 x (50 + 25) | 300 | 1-300 |
-| 2 | Units 5-8 | 300 | 301-600 |
-| 3 | Units 9-12 | 300 | 601-900 |
-| 4 | 36" rails (11 x 25 = 275), then ring (50) | 325 | 901-1225 |
-| 5 | 72" rails (12 x 25) | 300 | 1226-1525 |
+| P1 | 400 | 1 | 1-3 |
+| P2 | 375 | 1201 | 3-5 |
+| P3 | 375 | 2326 | 5-7 |
+| P4 | 375 | 3451 | 7-9 |
 
-- Totals: 1,525 pixels, 48 strings (24 post/rafter + 11 + 12 + 1), 4,575 channels. Over E1.31 that is 9 universes at 170 pixels (8 full + 165 px).
-- The K16A-B has 16 ports (check the spec sheet); only 5 are used. Port 4 carries 325 px; if you prefer all ports at 300 or less, put the ring on its own port 6.
-- Power: **12 V pixels**. Estimated ~0.04 A per pixel at full white (pending the datasheet): ~12 A per 300-px port, ~13 A on port 4, **~61 A total**. Suggested: one 12 V supply per port (15 A for ports 1, 2, 3, 5; 20 A for port 4), each with a fuse, or two or three 12 V 30 A supplies with a fused distribution block. Inject 12 V at the start of every port, and mid-chain on ports 1-3 between units 2 and 3. Ports 4 and 5 are 12-13 A from a single start injection, so use heavy wire (e.g. 14 AWG) or add a mid-chain injection there.
-- Pixels plug into 2"-pitch mounting strips on the inward side of the posts, rails and rafters (see the diagram, panel 3).
-- In FPP, set the pixel outputs (Channel Outputs) per port above, start channel 1, same order. The `.fseq` files assume channel 1 = pixel 1 red.
+- **Ports carry data + GND only. Leave the port V+ pins unconnected.** All pixel power comes straight from the fused blocks:
+  - Every post+rafter unit is fed at its ring end.
+  - The rails are fed at posts 4 and 10.
+- **The K4-PB per-port eFuse limit is not published**, so it is not relied on.
+- Each port's data lead is ~2 ft from the ring box. Each port runs 3 units (down, floor hop, up, ring hop, down), then a short jumper up the post to the rails.
+- **Hops and jumpers:**
+  - 4 floor-level hops, on faces 2, 5, 8 and 11; none on the entrance.
+  - 4 ring hops.
+  - 8 vertical post jumpers on posts 1, 4, 7 and 10.
+  - All of them carry data + GND only.
+- **Worst-case current** at 0.06 A/px is 91.5 A, and the worst-case drop is 1.23 V with the supplies set to 12.4 V. Tables are in the v3 doc.
+- In FPP, set the K4-PB pixel outputs as in the port table above (all WS2811, RGB). The `.fseq` files assume channel 1 = pixel 1 red.
+- **History:**
+  - `docs/wiring.md` and `docs/wiring_diagram.png` are the original 5-port plan.
+  - `docs/physical_layout.md` (Layout B) and `docs/physical_layout_v2.md` (Layout F with a K16A-B) are earlier iterations.
 
 ## Importing the model into xLights
 1. xLights > Layout > Models > **Create a new Custom model** (or the Import Custom Model option) and select `model/gazebo.xmodel`.
 2. Check the model is 3D: width 189, height 92, depth 189 (1 cell = 1"), 1,525 nodes. Set the string type to RGB nodes and the start channel as needed.
-3. Assign it to your controller ports per the table above.
+3. Assign it to the K4-PB ports per the table above (P1 nodes 1-400, P2 401-775, P3 776-1150, P4 1151-1525).
 4. If the import fails or the nodes look wrong, create a 3D custom model with the same width/height/depth and rebuild node positions from `gazebo_pixels.csv`.
 5. The `.fseq` files are not editable xLights sequences; use them for FPP playback, or build effects on the model in xLights.
 
@@ -87,7 +105,9 @@ python scripts/xl_anim2.py        # calm 7 sequences + gazebo_calm.fseq
 python scripts/xl_preview2.py     # GIF previews (needs the build/ frames from the two steps above)
 python scripts/night_cam.py       # night renders
 python scripts/g5.py              # 3D renders and OBJ
-python scripts/wiring_diagram.py  # docs/wiring_diagram.png
+python scripts/wiring_diagram.py  # docs/wiring_diagram.png (original 5-port plan, historical)
+python scripts/physical_layout_v3.py docs/physical_layout_v3.png   # current physical layout (K4-PB)
+python scripts/power_calc_v2.py   # voltage-drop numbers used in docs/physical_layout_v3.md
 ```
 All scripts run from the repo root and write to relative folders. Working files go to `build/` (git-ignored).
 
@@ -102,7 +122,7 @@ git lfs track "*.fseq" "*.gif"
 ## Caveats
 - **Not tested in xLights, FPP or on a Kulp controller.** I could not run xLights here. The `.xmodel` is valid XML in the classic `<custommodel parm1 parm2 Depth CustomModel=...>` format. I didn't use `CustomModelCompressed`, whose exact format I wasn't sure of.
 - The FSEQ v2 header (32 bytes, uncompressed, 50 ms step) was written from the spec as I remember it. FPP should be able to play it, but I haven't confirmed that.
-- A custom model can't store "pixels face inward"; the CSV positions are the real locations. 3D positions are rounded to 1" cells (4 collisions nudged 1 cell in +x).
+- A custom model can't store "pixels face inward"; the CSV positions are the real locations. 3D positions are rounded to 1" cells (no two pixels share a cell in the current build).
 - Previews and renders are from my own renderer, not xLights. Preview colors will differ from real pixels.
 - The ring height (3.5"), 1x4 rail centering, and brace geometry are my assumptions from your photo and measurements; verify against the build.
-- Brace-pixel exclusion, wiring order and the port plan are suggestions; confirm against your controller and wire direction.
+- Brace-pixel exclusion, wiring order and the port plan are suggestions; confirm against your K4-PB and wire direction.

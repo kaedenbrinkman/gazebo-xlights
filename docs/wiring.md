@@ -1,8 +1,10 @@
-# Wiring (Kulp K16A-B running FPP, 12 V pixels)
+# Wiring (original plan; Kulp controller running FPP, 12 V pixels)
 
 ![wiring diagram](wiring_diagram.png)
 
 **Untested plan.** 1,525 pixels in 48 strings, 4,575 channels. No pixels on braces or top joists. Regenerate the diagram with `python scripts/wiring_diagram.py` from the repo root.
+
+> **Superseded for ports, power and controller:** the current plan is [physical_layout_v3.md](physical_layout_v3.md): a Kulp **K4-PB** with 4 ports, data + GND only on the ports, the 12 V trunk from a ground box, and 0.06 A/px worst case. The model node order now follows v3, not the table below.
 
 ## Strings
 | Item | Strings | Pixels |
@@ -29,7 +31,7 @@ One unit: string A (50 px) goes up the post (35 px, 1" to 69") and continues 15 
 - **Injection:** 12 V (V+ and GND) injected at the start of every port, and mid-chain on ports 1-3 between units 2 and 3 (about 6 A per feed on those ports). Ports 4 and 5 carry 12-13 A from one feed: use heavy wire (e.g. 14 AWG) or add a mid-chain injection (not drawn).
 - **Supplies (options):** (a) one supply per port as above, each fused; or (b) two or three 12 V 30 A supplies (a 2 x 30 A pair has about 1 A of headroom at the full-white estimate, so 3 x 30 A is safer) feeding a fused distribution block. Tie all grounds together and to the controller.
 - **Data:** each port's data runs base to ring within a unit, then a data jumper from the unit's ring end to the next unit's post base. Alternative (not modeled): alternate unit direction so ring ends meet at the ring; that needs the xLights node order reversed for those units.
-- The node order in the xLights model follows this chain (nodes 1-900 units, 901-1175 36" rails, 1176-1225 ring, 1226-1525 72" rails), so every port is one contiguous channel range. The K16A-B has more ports than are used; check its current spec for per-port limits and whether it accepts 12 V directly for its own power.
+- *(Original plan; the model no longer uses this order and now follows physical_layout_v3.md.)* The node order followed this chain (nodes 1-900 units, 901-1175 36" rails, 1176-1225 ring, 1226-1525 72" rails), so every port was one contiguous channel range. The controller in this original plan was a K16A-B (now replaced by the 4-port K4-PB, see v3); check the spec for per-port limits and whether it accepts 12 V directly for its own power.
 
 ## Mounting: 2" pitch strips
 Pixels plug into mounting strips (flat bar, PVC or wood) with holes at 2" centres, fixed on the inward-facing side of each post, rail and rafter, so every bulb faces the interior. The strips only hold the pitch; wiring stays a normal daisy chain. Strip stock and hole size depend on your pixels (assumption, confirm against hardware).
