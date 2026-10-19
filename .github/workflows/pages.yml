@@ -1,0 +1,56 @@
+name: Deploy web preview to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Sanity-check the static site
+        run: |
+          test -f web/index.html
+          test -f web/vendor/three/build/three.module.js
+          test -f web/sequences/manifest.json
+          python3 - <<'PY'
+          import json, os, struct
+          m = json.load(open('web/sequences/manifest.json'))
+          for s in m['shows']:
+              p = os.path.join('web', s['file']); b = open(p, 'rb').read(32)
+              assert b[:4] == b'PSEQ', p
+              ch, nf = struct.unpack_from('<II', b, 10)
+              assert ch == m['model']['channels'] and nf == s['frames'], (p, ch, nf)
+          print(len(m['shows']), 'shows OK')
+          PY
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: web
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

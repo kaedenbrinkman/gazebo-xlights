@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gazebo xLights · 1,525-pixel 3D preview</title>
+<meta name="description" content="Interactive night-time 3D preview of a 12-sided gazebo with 1,525 RGB pixels, playing the xLights .fseq shows in the browser.">
+<meta name="theme-color" content="#05070d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpolygon points='32,4 58,20 58,44 32,60 6,44 6,20' fill='none' stroke='%23ffb347' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%23ffd27a'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+<script type="importmap">
+{ "imports": {
+    "three": "./vendor/three/build/three.module.js",
+    "three/addons/": "./vendor/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="app">
+  <canvas id="view" aria-label="3D view of the gazebo"></canvas>
+
+  <div id="hud">
+    <div class="hud-title"><span class="dot"></span><span id="hud-show">-</span></div>
+    <div class="hud-sub" id="hud-time">0.0 s</div>
+  </div>
+
+  <button id="sheet-toggle" class="icon-btn" aria-label="Toggle controls" title="Controls">
+    <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+
+  <aside id="panel" aria-label="Controls">
+    <header class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><polygon points="32,5 55.4,18.5 55.4,45.5 32,59 8.6,45.5 8.6,18.5"/><circle cx="32" cy="32" r="6"/></svg>
+      </div>
+      <div>
+        <h1>Gazebo <span>xLights</span></h1>
+        <p class="tagline">12-sided gazebo · 1,525 RGB pixels · <span id="show-count">14</span> shows</p>
+      </div>
+    </header>
+
+    <section class="transport">
+      <div class="row">
+        <button id="btn-prev" class="icon-btn" title="Previous show (←)" aria-label="Previous show"><svg viewBox="0 0 24 24"><path d="M6 5v14M19 5l-10 7 10 7z"/></svg></button>
+        <button id="btn-play" class="play-btn" title="Play / pause (space)" aria-label="Play or pause">
+          <svg class="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>
+          <svg class="i-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>
+        </button>
+        <button id="btn-next" class="icon-btn" title="Next show (→)" aria-label="Next show"><svg viewBox="0 0 24 24"><path d="M18 5v14M5 5l10 7-10 7z"/></svg></button>
+        <div class="now">
+          <div id="now-title">-</div>
+          <div id="now-meta" class="muted">-</div>
+        </div>
+      </div>
+      <input id="scrub" type="range" min="0" max="1000" value="0" step="1" aria-label="Position">
+      <div class="sliders">
+        <label>Brightness <output id="o-bright">100%</output>
+          <input id="s-bright" type="range" min="0" max="200" value="100"></label>
+        <label>Speed <output id="o-speed">1.00×</output>
+          <input id="s-speed" type="range" min="0" max="8" value="3" step="1"></label>
+        <label>Glow <output id="o-glow">100%</output>
+          <input id="s-glow" type="range" min="0" max="200" value="100"></label>
+      </div>
+    </section>
+
+    <section>
+      <h2>Shows</h2>
+      <ul id="show-list" class="show-list" role="listbox" aria-label="Shows"></ul>
+      <div id="user-shows-wrap" hidden>
+        <h3>Your files</h3>
+        <ul id="user-list" class="show-list" role="listbox" aria-label="Loaded files"></ul>
+      </div>
+      <div class="load-row">
+        <label class="btn" for="file-input" title="Play-test an .fseq exported from xLights">
+          <svg viewBox="0 0 24 24"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"/></svg> Load .fseq
+        </label>
+        <input id="file-input" type="file" accept=".fseq,application/octet-stream" hidden>
+        <span class="muted small">or drop a file anywhere</span>
+      </div>
+      <div id="file-info" class="file-info" hidden></div>
+    </section>
+
+    <section>
+      <h2>Camera</h2>
+      <div class="chips" id="cams">
+        <button data-cam="outside" class="chip">Outside ¾</button>
+        <button data-cam="inside" class="chip">Inside, looking up</button>
+        <button data-cam="entrance" class="chip">Entrance</button>
+        <button data-cam="top" class="chip">Top-down</button>
+      </div>
+      <div class="toggles">
+        <label class="switch"><input id="t-orbit" type="checkbox"><span></span> Auto-rotate</label>
+        <label class="switch"><input id="t-wood" type="checkbox"><span></span> Wood lit</label>
+      </div>
+    </section>
+
+    <footer class="foot muted small">
+      Shows are the real <code>.fseq</code> files (FSEQ v2, 20 fps, 4,575 ch) parsed in your browser.
+      Drag, scroll and pinch to move the camera. Keys: <kbd>Space</kbd> <kbd>←</kbd><kbd>→</kbd> <kbd>1</kbd>-<kbd>4</kbd> <kbd>R</kbd> <kbd>W</kbd>.
+      <br><a href="https://github.com/kaedenbrinkman/gazebo-xlights">Source &amp; xLights model</a>
+    </footer>
+  </aside>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="drop" aria-hidden="true"><div><svg viewBox="0 0 24 24"><path d="M12 4v12M6 10l6 6 6-6M4 20h16"/></svg><p>Drop an <b>.fseq</b> to play it on the gazebo</p></div></div>
+
+  <div id="loader">
+    <div class="loader-inner">
+      <div class="loader-ring"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <h1>Gazebo <span>xLights</span></h1>
+      <div class="bar"><div id="load-bar"></div></div>
+      <p id="load-msg" class="muted">Loading…</p>
+    </div>
+  </div>
+  <noscript><p class="nojs">This preview needs JavaScript and WebGL.</p></noscript>
+</div>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
